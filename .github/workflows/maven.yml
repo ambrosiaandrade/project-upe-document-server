@@ -1,0 +1,121 @@
+name: Java CI/CD Professional
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+jobs:
+  # JOB 1: LINT & QUALITY CHECK (SonarQube + Checkstyle)
+  # Verifica estilo de código e qualidade estática
+  lint:
+    name: Lint & Quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Importante para o SonarQube analisar o histórico git
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin' # Padrão industrial (Eclipse Temurin)
+          cache: 'maven'
+
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      # Executa análise estática (Sonar)
+      # Requer configuração de segredos no GitHub (SONAR_TOKEN)
+      - name: Static Analysis (SonarQube/SonarCloud)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Token nativo do GitHub
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}    # Você precisa criar este secret
+        run: |
+          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+          -Dsonar.projectKey=br.edu.upe:document-generator-api \
+          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+          -DskipTests # O Sonar aqui foca na análise estática. A cobertura vem do job de teste.
+
+  # JOB 2: TEST & COVERAGE (JUnit + Jacoco)
+  # Roda os testes e gera relatórios de cobertura
+  test:
+    name: Unit & Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Run Tests with Jacoco
+        # 'verify' roda testes unitários E integração e aciona o plugin do Jacoco (se configurado no pom)
+        run: mvn -B verify
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: target/site/jacoco/jacoco.xml
+          retention-days: 1
+
+      # (Opcional) Publica resumo dos testes no PR
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v4
+        if: always() # Roda mesmo se os testes falharem
+        with:
+          report_paths: '**/target/surefire-reports/TEST-*.xml'
+
+  # JOB 3: SECURITY SCAN (Trivy)
+  # Padrão de segurança robusto para checar vulnerabilidades nas dependências
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner (Filesystem)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          ignore-unfixed: true
+          format: 'table'
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+  # JOB 4: BUILD (Artifact Generation)
+  # Só roda se os testes e o lint passarem (chain of responsibility)
+  # Garante que o artefato final só é gerado se o código estiver saudável
+  build:
+    name: Build Artifact
+    needs: [test, lint] # Dependência: só builda se testes e lint passarem
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build with Maven
+        run: mvn -B package -DskipTests # Testes já rodaram no job anterior
+
+      - name: Upload JAR Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: target/*.jar
+          retention-days: 5
