@@ -1,11 +1,3 @@
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Anton&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
-
-body {
-  font-family: "DM Mono";
-}
-</style>
-
 <!-- PROJECT LOGO & HEADER -->
 <div align="center">
 <svg width="100%" height="40" xmlns="http://www.w3.org/2000/svg">
