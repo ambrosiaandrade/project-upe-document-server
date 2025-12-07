@@ -1,6 +1,7 @@
 package br.edu.upe.document.domain.service;
 
 import br.edu.upe.document.adapter.input.dto.DocumentRequest;
+import br.edu.upe.document.domain.constants.Fields;
 import br.edu.upe.document.domain.model.DocumentTypeEnum;
 import br.edu.upe.document.domain.port.input.InputPortDocument;
 import br.edu.upe.document.domain.port.output.OutputPortDocument;
@@ -44,7 +45,7 @@ public class DocumentService implements InputPortDocument {
 
     private void validateKeys(DocumentTypeEnum documentType, Map<String, String> map) {
         List<String> requiredKeys = switch (documentType) {
-            case DECLARACAO_SUPERVISAO -> DocumentMapping.declaracao_supervisao;
+            case DECLARACAO_SUPERVISAO -> Fields.DECLARACAO_SUPERVISAO;
             case TERMO_COMPROMISSO_ESTAGIO -> null;
         };
 
