@@ -1,3 +1,5 @@
 spring:
   application:
     name: UPE Internship Document API
+  profiles:
+    active: dev
