@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class UpeInternshipDocumentApiApplication {
+public class UpeDocumentApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(UpeInternshipDocumentApiApplication.class, args);
+		SpringApplication.run(UpeDocumentApplication.class, args);
 	}
 
 }

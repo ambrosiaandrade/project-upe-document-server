@@ -23,8 +23,10 @@ public class InputAdapterDocumentController {
     @PostMapping
     public ResponseEntity<byte[]> createDocument(@RequestBody DocumentRequest documentRequest) throws Exception {
         var result = inputPortDocument.generate(documentRequest);
+        var file = String.format("attachment; filename=%s.pdf",
+                documentRequest.getDocumentType().name().toLowerCase());
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=doc.pdf")
+                .header(HttpHeaders.CONTENT_DISPOSITION, file)
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(result);
     }

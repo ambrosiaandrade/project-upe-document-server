@@ -1,5 +1,6 @@
 package br.edu.upe.document.config;
 
+import br.edu.upe.document.domain.port.output.OutputPortData;
 import br.edu.upe.document.domain.port.output.OutputPortDocument;
 import br.edu.upe.document.domain.service.DocumentService;
 import br.edu.upe.document.domain.service.DocumentTemplate;
@@ -15,8 +16,9 @@ import org.springframework.context.annotation.Configuration;
 public class DomainServiceConfig {
 
     @Bean
-    public DocumentService documentService(final OutputPortDocument outputPortDocument) {
-        return new DocumentService(outputPortDocument);
+    public DocumentService documentService(final OutputPortDocument outputPortDocument,
+                                           final OutputPortData outputPortData) {
+        return new DocumentService(outputPortDocument, outputPortData);
     }
 
     @Bean

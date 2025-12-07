@@ -11,7 +11,9 @@ public class DocumentTemplate implements InputPortTemplate {
     private static final Map<String, String> templates = new HashMap<>();
 
     public DocumentTemplate() {
-        templates.put("DECLARACAO_SUPERVISAO", Templates.DECLARACAO_SUPERVISAO);;
+        templates.put("DECLARACAO_SUPERVISAO", Templates.DECLARACAO_SUPERVISAO);
+        templates.put("TERMO_COMPROMISSO_ESTAGIO", Templates.TERMO_COMPROMISSO_ESTAGIO);
+        templates.put("TERMO_ENCAMINHAMENTO_ESTAGIO", Templates.TERMO_ENCAMINHAMENTO_ESTAGIO);
     }
 
     @Override
